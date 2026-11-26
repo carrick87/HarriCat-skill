@@ -2,6 +2,8 @@
 
 A small corner cat for a Next.js app. Double-click the cat to send it away. **Come back, cat** brings it back.
 
+The near paw holds the desk mouse and follows the pointer. A left click shows **LMB** and a right click shows **RMB** above that mouse. Moving the pointer wakes a sleeping cat.
+
 HarriCat is a web overlay derived from [KuroCat](https://github.com/chanke17/KuroCat) by **chanke17**. It is not the official desktop app. The native macOS, Windows, and Linux pets stay in that repository.
 
 ## License
@@ -58,6 +60,13 @@ harricat-install xiao-douni
 ```
 
 English names work too: `harricat-install "Black Cat"`.
+
+## Recent updates
+
+### 1.0.1 (26 Nov 2026)
+- The near paw holds the desk mouse and follows the pointer
+- Moving the pointer wakes a sleeping cat
+- A click shows LMB or RMB above that mouse
 
 ## Credits
 

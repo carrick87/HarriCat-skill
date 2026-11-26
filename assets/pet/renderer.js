@@ -4958,7 +4958,12 @@
     } else {
       state.leftPaw = { x: MOUSE_BASE.x + (state.mouseOffsetX || 0), y: MOUSE_BASE.y + (state.mouseOffsetY || 0) - 2 };
       state.leftPawActive = true;
-      spawnBadge(state, label, MOUSE_BASE.x, MOUSE_BASE.y - 16);
+      spawnBadge(
+        state,
+        label,
+        MOUSE_BASE.x + (state.mouseOffsetX || 0),
+        MOUSE_BASE.y + (state.mouseOffsetY || 0) - 18
+      );
     }
   }
 

@@ -27,6 +27,7 @@ node <skill-dir>/scripts/harricat-install.mjs <skin>
 2. If middleware redirects unknown paths to login, add `kurocat/` to the public matcher so `/kurocat/pet/*.js` is a static file. Do not change who can open app pages.
 3. Do not delete `public/kurocat/LICENSE`.
 4. Double-click hides the cat. **Come back, cat** shows it again.
+5. The near paw holds the desk mouse and slides with the pointer. Moving the pointer wakes a sleeping cat. A click shows **LMB** or **RMB** above that mouse. Do not drop this when copying `assets/pet/web-pet.js` or `assets/pet/renderer.js`.
 
 ## Do not
 

@@ -204,6 +204,9 @@
       live.pitch = ny * 0.85;
       live.gazeX = nx;
       live.gazeY = ny;
+      if (live.prevClientX === null || Math.hypot(e.clientX - live.prevClientX, e.clientY - live.prevClientY) > 0.4) {
+        live.lastActivity = now;
+      }
 
       if (live.prevClientX !== null && now - live.prevMoveTime < 120) {
         var dist = Math.hypot(e.clientX - live.prevClientX, e.clientY - live.prevClientY);
@@ -274,6 +277,19 @@
     live.lastActivity = now;
     var pos = clientToCanvasPos(e.clientX, e.clientY);
     var hit = Renderer.hitTestCat(pos, activeSkin, state);
+    var mouseX = Renderer.MOUSE_BASE.x + (state.mouseOffsetX || 0);
+    var mouseY = Renderer.MOUSE_BASE.y + (state.mouseOffsetY || 0);
+    var onDrawnMouse = Math.hypot(pos.x - mouseX, pos.y - mouseY) <= 28 || hit === 'mouse';
+
+    // The paw sits on the mouse, so this has to win over a body hit.
+    if (onDrawnMouse) {
+      if (forcedPose !== 'idle') setForcedPose('idle');
+      live.lastMouseClickTime = now;
+      Renderer.triggerMouseClick(state, activeSkin, e.button === 2);
+      totalKeys += 1;
+      updateKeyCounter();
+      return;
+    }
 
     if (hit === 'head' || hit === 'body') {
       canvas.setPointerCapture(e.pointerId);
@@ -291,14 +307,7 @@
       return;
     }
 
-    // Click on mouse or keyboard area directly!
-    if (pos.x < 110 && pos.y > 215) {
-      if (forcedPose !== 'idle') setForcedPose('idle');
-      live.lastMouseClickTime = now;
-      Renderer.triggerMouseClick(state, activeSkin, e.button === 2);
-      totalKeys += 1;
-      updateKeyCounter();
-    } else if (pos.y > 205) {
+    if (pos.y > 205) {
       if (forcedPose !== 'idle') setForcedPose('idle');
       var cap = Renderer.findNearestKeycap(pos, activeSkin);
       live.lastKeyTime = now;
@@ -322,6 +331,16 @@
   }
   canvas.addEventListener('pointerup', endDrag);
   canvas.addEventListener('pointercancel', endDrag);
+
+  // Real mouse clicks anywhere on the page, same idea as the global key listener.
+  window.addEventListener('pointerdown', function (e) {
+    if (!activeSkin || e.target === canvas) return;
+    if (getComputedStyle(canvas).display === 'none') return;
+    var now = performance.now();
+    live.lastActivity = now;
+    live.lastMouseClickTime = now;
+    Renderer.triggerMouseClick(state, activeSkin, e.button === 2);
+  }, true);
 
   // Real physical keyboard listening anywhere on the page!
   window.addEventListener('keydown', function (e) {
@@ -523,6 +542,25 @@
       if (!state.leftPawActive) {
         state.leftPaw.x = lerp(state.leftPaw.x, Renderer.LEFT_PAW_REST.x);
         state.leftPaw.y = lerp(state.leftPaw.y, Renderer.LEFT_PAW_REST.y);
+      }
+      // Keep the near paw on the desk mouse and slide it with the real pointer.
+      var typingNow = heldCaps.length > 0 || (nowMs - live.lastKeyTime < 220);
+      var holdMouse = !isDouni
+        && !isDraggingNow
+        && effectivePose === 'idle'
+        && !typingNow
+        && live.pointerActive
+        && live.petHead < 0.25
+        && !isSleeping;
+      var mouseFollow = Math.min(1, dt * (holdMouse ? 12 : 5));
+      var aimX = holdMouse ? live.yaw * 24 : 0;
+      var aimY = holdMouse ? clamp(live.pitch / 0.85, -1, 1) * 14 : 0;
+      state.mouseOffsetX = (state.mouseOffsetX || 0) + (aimX - (state.mouseOffsetX || 0)) * mouseFollow;
+      state.mouseOffsetY = (state.mouseOffsetY || 0) + (aimY - (state.mouseOffsetY || 0)) * mouseFollow;
+      if (holdMouse) {
+        state.leftPaw.x = Renderer.MOUSE_BASE.x + state.mouseOffsetX;
+        state.leftPaw.y = Renderer.MOUSE_BASE.y + state.mouseOffsetY - 4;
+        state.leftPawActive = true;
       }
       if (!state.rightPawActive) {
         state.rightPaw.x = lerp(state.rightPaw.x, Renderer.RIGHT_PAW_REST.x);
