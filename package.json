@@ -1,0 +1,10 @@
+{
+  "name": "harricat-skill",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Install the HarriCat corner cat into a Next.js app. MIT derivative of KuroCat by chanke17.",
+  "bin": {
+    "harricat-install": "./scripts/harricat-install.mjs"
+  },
+  "license": "MIT"
+}
